@@ -75,12 +75,12 @@ from, to, amount, currency.
 - ACC1002: frozen, MNT.
 - ACC2001: active, MNT.
 - ACC9999 болон ACC9998: бүртгэлгүй.
-- Өдрийн үлдсэн лимит = 300000 MNT.
+- Өдрийн үлдсэн лимит = 600000 MNT.
 
 Normal = 100000 MNT:
 үлдэгдэл болон лимитийн хүрээнд байна.
 
-OverBalance = 600000 MNT:
+OverBalance = 550000 MNT:
 үлдэгдлээс хэтэрнэ.
 
 OverLimit = 400000 MNT:
