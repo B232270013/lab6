@@ -160,7 +160,68 @@ M = 72 - 18 - 18 + 6 = 42
 [SINGLE] тэмдэглэгээг 42 тоонд
 дахин хасалт гэж оруулаагүй.
 
-OverBalance, OverLimit нь бодит хүсэлтэд
-давхцаж болох ч тус бүрийн тестийн setup-д
-нөгөө нөхцөлийг хангахаар тохируулж,
-алдааны ангийг тусгаарлана.
+## A3 — Тестийн спецификаци
+
+Нийт 12 тестийн спецификаци боловсруулав.
+
+| ID | From | To | Amount | Currency | Expected |
+|---|---|---|---|---|---|
+| TC01 | Valid | Valid | Normal | Same | 201 OK |
+| TC02 | Valid | Valid | Normal | Different | 201 OK |
+| TC03 | Missing | Valid | Normal | Same | 200 ERROR_NO_FROM |
+| TC04 | Frozen | Valid | Normal | Same | 200 ERROR_FROZEN |
+| TC05 | Valid | Missing | Normal | Same | 200 ERROR_NO_TO |
+| TC06 | Valid | SameAsFrom | Normal | Same | 200 ERROR_SAME_ACCOUNT |
+| TC07 | Valid | Valid | Zero | Same | 200 ERROR_BAD_AMOUNT |
+| TC08 | Valid | Valid | OverBalance | Same | 200 ERROR_INSUFFICIENT |
+| TC09 | Valid | Valid | OverLimit | Same | 200 ERROR_LIMIT |
+| TC10 | Missing | Missing | Normal | Different | 200 ERROR_NO_FROM |
+| TC11 | Frozen | Missing | Normal | Same | 200 ERROR_FROZEN |
+| TC12 | Valid | SameAsFrom | OverLimit | Different | 200 ERROR_SAME_ACCOUNT |
+
+### Тестийн зорилго
+
+TC01: Хүчинтэй дансуудын хооронд энгийн
+амжилттай шилжүүлэг шалгана.
+
+TC02: Валют хөрвүүлсний дараа амжилттай
+шилжүүлэг хийгдэхийг шалгана.
+
+TC03: [SINGLE] сонголтоор эх данс байхгүй
+алдааг тусад нь шалгана.
+
+TC04: Царцаагдсан дансны алдааг шалгана.
+
+TC05: Хүлээн авагч байхгүй алдааг шалгана.
+
+TC06: Өөрийн данс руу шилжүүлэх алдааг шалгана.
+
+TC07: Тэг дүнтэй шилжүүлгийн алдааг шалгана.
+
+TC08: Үлдэгдэл хүрэлцэхгүй алдааг шалгана.
+
+TC09: Өдрийн лимит хэтэрсэн алдааг шалгана.
+
+TC10: From ба To хоёулаа байхгүй үед
+ERROR_NO_FROM давуу эрхтэйг шалгана.
+
+TC11: Frozen ба Missing To давхцахад
+ERROR_FROZEN буцахыг шалгана.
+
+TC12: SameAsFrom болон OverLimit давхцахад
+ERROR_SAME_ACCOUNT буцахыг шалгана.
+
+### Oracle буюу хүлээгдэх үр дүн
+
+Амжилттай шилжүүлэг:
+HTTP 201, {"result":"OK"}
+
+Алдаатай шилжүүлэг:
+HTTP 200, {"result":"ERROR_..."}
+
+Олон алдаа давхцсан үед:
+From → To → Amount эрэмбийг хэрэглэнэ.
+
+Different валюттай үед amount нь хүсэлтийн
+валютаар илэрхийлэгдсэн бөгөөд хөрвүүлсний
+дараах дүнгээр үлдэгдэл, лимитийг шалгана.
