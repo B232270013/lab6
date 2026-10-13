@@ -374,3 +374,125 @@ HTTP 200
 - results/transfer-nc.txt
 - results/transfer.txt
 - results/transfer-neg.txt
+
+## B2 — PICT гаралтаас боловсруулсан бодит тест кейсүүд
+
+Тестүүдийг `results/transfer-neg.txt` файлаас сонгосон.
+Мөрийн дугаарт толгойн мөрийг тооцоогүй.
+
+### TC-B01 — Happy path
+
+**PICT мөр:** 1
+
+| From | To | Amount | Currency |
+|---|---|---|---|
+| Valid | Valid | Normal | Same |
+
+**Setup:**
+- ACC1001: Active, MNT, үлдэгдэл 500000 MNT.
+- Өдрийн үлдсэн лимит: 300000 MNT.
+- ACC2001: хүчинтэй, өөр данс.
+
+**Input:**
+
+```json
+{
+  "from": "ACC1001",
+  "to": "ACC2001",
+  "amount": 100000,
+  "currency": "MNT"
+}
+```
+
+**Oracle:**
+
+HTTP 201
+
+```json
+{"result":"OK"}
+```
+
+Үндэслэл: Дүн нь эерэг, үлдэгдэл болон өдрийн
+лимитийн хүрээнд байгаа учраас шилжүүлэг амжилттай.
+
+### TC-B02 — Missing From
+
+**PICT мөр:** 8
+
+| From | To | Amount | Currency |
+|---|---|---|---|
+| ~Missing | Valid | Normal | Same |
+
+**Setup:**
+- ACC9999: системд байхгүй.
+- ACC2001: хүчинтэй данс.
+- Шилжүүлэх дүн: 100000 MNT.
+
+**Input:**
+
+```json
+{
+  "from": "ACC9999",
+  "to": "ACC2001",
+  "amount": 100000,
+  "currency": "MNT"
+}
+```
+
+**Oracle:**
+
+HTTP 200
+
+```json
+{"result":"ERROR_NO_FROM"}
+```
+
+Үндэслэл: Эх данс байхгүй учраас
+ERROR_NO_FROM алдаа буцна.
+
+### TC-B03 — OverLimit
+
+**PICT мөр:** 16
+
+| From | To | Amount | Currency |
+|---|---|---|---|
+| Valid | Valid | ~OverLimit | Same |
+
+**Setup:**
+- ACC1001: Active, үлдэгдэл 500000 MNT.
+- Өдрийн үлдсэн лимит: 300000 MNT.
+- ACC2001: хүчинтэй, өөр данс.
+
+**Input:**
+
+```json
+{
+  "from": "ACC1001",
+  "to": "ACC2001",
+  "amount": 400000,
+  "currency": "MNT"
+}
+```
+
+**Oracle:**
+
+HTTP 200
+
+```json
+{"result":"ERROR_LIMIT"}
+```
+
+Үндэслэл: 400000 MNT нь 500000 MNT
+үлдэгдэлд багтсан боловч 300000 MNT
+өдрийн лимитээс хэтэрсэн.
+
+### Тест кейсүүдийн нэгтгэл
+
+| ID | PICT мөр | HTTP | Result |
+|---|---:|---:|---|
+| TC-B01 | 1 | 201 | OK |
+| TC-B02 | 8 | 200 | ERROR_NO_FROM |
+| TC-B03 | 16 | 200 | ERROR_LIMIT |
+
+Эдгээр нь API-г бодитоор ажиллуулсан үр дүн биш,
+спецификацид үндэслэсэн хүлээгдэх үр дүн юм.
